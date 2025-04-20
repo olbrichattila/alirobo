@@ -1,0 +1,32 @@
+//go:build js && wasm
+// +build js,wasm
+
+package api
+
+import (
+	"syscall/js"
+)
+
+type wasmClient struct{}
+
+func NewClient() APIClient {
+	return &wasmClient{}
+}
+
+func (c *wasmClient) GetScore() error {
+	fetch := js.Global().Get("fetch")
+	if !fetch.Truthy() {
+		return nil // or return an error
+	}
+
+	promise := fetch.Invoke("http://localhost:3000")
+	then := js.FuncOf(func(this js.Value, args []js.Value) interface{} {
+		response := args[0]
+		status := response.Get("status").Int()
+		println("Status from JS fetch:", status)
+		return nil
+	})
+	promise.Call("then", then)
+
+	return nil
+}

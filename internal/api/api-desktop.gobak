@@ -1,0 +1,28 @@
+//go:build !js && !wasm
+// +build !js,!wasm
+
+package api
+
+import (
+	"fmt"
+	"net/http"
+)
+
+type desktopClient struct{}
+
+func NewClient() APIClient {
+	return &desktopClient{}
+}
+
+func (c *desktopClient) GetScore() error {
+	resp, err := http.Get("http//localhost:3000")
+	if err != nil {
+		return err
+	}
+	defer resp.Body.Close()
+
+	fmt.Println("Status:", resp.Status)
+	// Process response as needed
+
+	return nil
+}
