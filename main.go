@@ -468,7 +468,6 @@ func (g *game) playExplosionSound() {
 
 func (g *game) playLaunchSound() {
 	sound.PlayNewFromData(g.resources.LaunchSndData)
-
 }
 
 func (g *game) playBgMusic() {
