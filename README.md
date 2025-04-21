@@ -37,16 +37,16 @@ If for the specific room available and you're inside a room and unsure what to d
 
 ## Screenshots
 
-![Opening page](screenshots/sc1.png)
-![Opening page](screenshots/sc2.png)
-![Opening page](screenshots/sc3.png)
-![Opening page](screenshots/sc4.png)
-![Opening page](screenshots/sc5.png)
-![Opening page](screenshots/sc6.png)
-![Opening page](screenshots/sc17.png)
-![Opening page](screenshots/sc18.png)
-![Opening page](screenshots/sc19.png)
-![Opening page](screenshots/sc20.png)
+![Opening page](https://raw.githubusercontent.com/olbrichattila/alirobo/main/screenshots/sc1.png)
+![Opening page](https://raw.githubusercontent.com/olbrichattila/alirobo/main/screenshots/sc2.png)
+![Opening page](https://raw.githubusercontent.com/olbrichattila/alirobo/main/screenshots/sc3.png)
+![Opening page](https://raw.githubusercontent.com/olbrichattila/alirobo/main/screenshots/sc4.png)
+![Opening page](https://raw.githubusercontent.com/olbrichattila/alirobo/main/screenshots/sc5.png)
+![Opening page](https://raw.githubusercontent.com/olbrichattila/alirobo/main/screenshots/sc6.png)
+![Opening page](https://raw.githubusercontent.com/olbrichattila/alirobo/main/screenshots/sc17.png)
+![Opening page](https://raw.githubusercontent.com/olbrichattila/alirobo/main/screenshots/sc18.png)
+![Opening page](https://raw.githubusercontent.com/olbrichattila/alirobo/main/screenshots/sc19.png)
+![Opening page](https://raw.githubusercontent.com/olbrichattila/alirobo/main/screenshots/sc20.png)
 
 ---
 
