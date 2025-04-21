@@ -57,7 +57,6 @@ func (c *desktopClient) AddScore(name string, score int) error {
 }
 
 func (c *desktopClient) Top10() (UserScores, error) {
-	fmt.Println(defaultconfig.ApiUrl + "top")
 	resp, err := http.Get(defaultconfig.ApiUrl + "top")
 	if err != nil {
 		return nil, err

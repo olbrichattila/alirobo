@@ -41,7 +41,6 @@ func LoadMp3SoundData(url string) ([]byte, error) {
 	}
 
 	if resp.StatusCode != 200 {
-		fmt.Println("Cannot load " + url)
 		return nil, fmt.Errorf("cannot load %s", url)
 	}
 

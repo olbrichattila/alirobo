@@ -121,12 +121,6 @@ func loadImageFromURL(url string) (*ebiten.Image, error) {
 		return nil, err
 	}
 	defer resp.Body.Close()
-	// bodyBytes, err := io.ReadAll(resp.Body)
-	// if err != nil {
-	// 	log.Fatal(err)
-	// }
-	// bodyString := string(bodyBytes)
-	// fmt.Println(bodyString)
 
 	img, _, err := image.Decode(resp.Body)
 	if err != nil {

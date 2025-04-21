@@ -5,6 +5,10 @@ import (
 )
 
 func (g *game) updateLoading() {
+	if !g.resourceLoading {
+		g.resourceLoading = true
+		g.preInitResources()
+	}
 	g.resourceLoader.Update()
 }
 

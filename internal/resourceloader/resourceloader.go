@@ -7,6 +7,7 @@ import (
 	imageManager "alibabarobotgame/internal/image"
 	"alibabarobotgame/internal/sound"
 	"fmt"
+	"sync"
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/audio"
@@ -63,10 +64,12 @@ type ResourceLoader interface {
 
 type loader struct {
 	isLoaded           bool
+	isLoading          bool
 	audioDataResources map[string][]byte
 	audioResources     map[string]*audio.Player
 	imageResources     map[string]*ebiten.Image
 	readyCallback      func(resourceLoader ResourceLoader)
+	mu                 sync.RWMutex
 }
 
 // New resource loader
@@ -82,10 +85,12 @@ func New(readyCallback func(resourceLoader ResourceLoader)) ResourceLoader {
 func (l *loader) Update() {
 	if l.isLoaded && l.readyCallback != nil {
 		l.readyCallback(l)
+		return
 	}
 
-	if !l.isLoaded {
-		l.loadAll()
+	if !l.isLoading {
+		l.isLoading = true
+		go l.loadAll()
 	}
 }
 
@@ -99,7 +104,12 @@ func (l *loader) Draw(screen *ebiten.Image) {
 
 func (l *loader) loadAll() {
 	for key, url := range imageResourcesFiles {
-		l.loadImage(key, url)
+		if key == "LadderImage" {
+			l.loadImage(key, url, 40)
+			continue
+		}
+
+		l.loadImage(key, url, 0)
 	}
 
 	for key, url := range audioResourceFiles {
@@ -110,23 +120,40 @@ func (l *loader) loadAll() {
 		l.loadAudioData(key, url)
 	}
 
+	l.mu.Lock()
 	l.isLoaded = true
-
+	l.mu.Unlock()
 }
 
-func (l *loader) loadImage(key, url string) {
-	l.imageResources[key] = imageManager.Load(url)
+func (l *loader) loadImage(key, url string, replicate int) {
+	if replicate == 0 {
+		l.mu.Lock()
+		l.imageResources[key] = imageManager.Load(url)
+		l.mu.Unlock()
+		return
+	}
+
+	l.mu.Lock()
+	l.imageResources[key] = imageManager.ReplicateImageVertically(
+		imageManager.LoadWithSize(defaultconfig.CdnUrl+"static/ladder.png", 40, 40),
+		replicate,
+	)
+	l.mu.Unlock()
 }
 
 func (l *loader) loadAudioContext(key, url string) {
 	context, _ := sound.LoadMp3Sound(url)
 	// TODO error handling
+	l.mu.Lock()
 	l.audioResources[key] = context
+	l.mu.Unlock()
 }
 
 func (l *loader) loadAudioData(key, url string) {
 	data, _ := sound.LoadMp3SoundData(url)
+	l.mu.Lock()
 	l.audioDataResources[key] = data
+	l.mu.Unlock()
 }
 
 func (l *loader) GetAudioDataResource(key string) []byte {

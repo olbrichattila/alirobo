@@ -115,14 +115,11 @@ func main() {
 
 func New() Game {
 	g := &game{}
-	g.preInit()
-	g.init()
 	return g
 }
 
 func (g *game) preInit() {
 	g.loadSprites()
-	g.preInitResources()
 	g.preInitButtons()
 	g.preInitAPI()
 	g.preInitTimer()
@@ -147,9 +144,11 @@ func (g *game) preInitAPI() {
 func (g *game) preInitResources() {
 	g.resourceLoader = resourceloader.New(func(resourceLoader resourceloader.ResourceLoader) {
 		g.underGroundFacility = facility.New(g.gameEventHandler, resourceLoader)
-		g.gameStatus.gameMode = modeOpenScreen
 		g.openScreenImage = resourceLoader.GetImageResource("OpenScreenImage")
+		g.preInit()
+		g.init()
 		g.loadBadges()
+		g.gameStatus.gameMode = modeOpenScreen
 	})
 }
 
