@@ -1,6 +1,6 @@
 ## Alibaba cloud game challenge
 
-*This is a submission for the [Alibaba Cloud](https://int.alibabacloud.com/m/1000402443/) Challenge: [Build a Web Game](https://dev.to/challenges/alibaba).**
+**This is a submission for the [Alibaba Cloud](https://int.alibabacloud.com/m/1000402443/) Challenge: [Build a Web Game](https://dev.to/challenges/alibaba).**
 
 ---
 
@@ -28,8 +28,11 @@ If for the specific room available and you're inside a room and unsure what to d
 
 ---
 
-## Demo (I've registered a domain for -> pointing to Alibaba ECS)
-### Please give a few minutes to load!  
+## Demo
+(I've registered a domain for -> pointing to Alibaba ECS)
+Please note that the game is designed to work on a computer; mobile devices are not supported, and some old machines may not work due to a lack of Opengl support.
+
+> **Please give a few minutes to load!!!**  
 [https://www.alirobo.fun/](https://www.alirobo.fun/)
 
 
@@ -54,7 +57,6 @@ If for the specific room available and you're inside a room and unsure what to d
 
 My game is written entirely in Golang and compiled to WebAssembly (WASM) to run directly in the browser. Since I work with Golang professionally on backend systems, I thought—why not build a game with it too? To support the gameplay, I wrote a lightweight Golang-based API that handles storing and retrieving scores, including listing the top 10 leaderboard entries.
 
----
 
 **Planned Architecture Using Alibaba Cloud Services**
 Initially, the infrastructure I planned for the game made use of the following Alibaba Cloud services:
@@ -109,4 +111,3 @@ This was my first game written in Go, and it was a great opportunity to experime
 One unexpected challenge I ran into was compatibility issues with older Windows machines, particularly due to OpenGL limitations that Ebiten relies on. It was an eye-opener in terms of how graphics APIs can affect cross-platform support.
 
 Despite the time crunch and hurdles, I'm proud of how much I was able to build in such a short time and how I pushed Go beyond backend development into the realm of browser-based gaming.
-
