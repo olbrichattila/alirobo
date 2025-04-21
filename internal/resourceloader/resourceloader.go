@@ -7,7 +7,6 @@ import (
 	imageManager "alibabarobotgame/internal/image"
 	"alibabarobotgame/internal/sound"
 	"fmt"
-	"sync"
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/audio"
@@ -18,261 +17,138 @@ const (
 	resourceCount = 23
 )
 
-// Resources loaded
-type Resources struct {
-	mu                sync.RWMutex
-	loadedCount       int
-	BadgeEcs          *ebiten.Image
-	BadgeFn           *ebiten.Image
-	BadgeOss          *ebiten.Image
-	BadgeServerless   *ebiten.Image
-	BadgeBlockStorage *ebiten.Image
-	BadgeCloudBackup  *ebiten.Image
-	BadgeCdn          *ebiten.Image
-	BadgeApsaraDB     *ebiten.Image
-	WallImage         *ebiten.Image
-	ServerRoomImage   *ebiten.Image
-	OfficeImage       *ebiten.Image
-	Office2Image      *ebiten.Image
-	Office3Image      *ebiten.Image
-	BricksImage       *ebiten.Image
-	VBricksImage      *ebiten.Image
-	SafeDoorImage     *ebiten.Image
-	LadderImage       *ebiten.Image
-	BossImage         *ebiten.Image
-	OpenScreenImage   *ebiten.Image
-	LaunchSndData     []byte
-	ExplosionSnd      *audio.Player
-	BgMusic           *audio.Player
+type audioDataResources map[string][]byte
+type audioResources map[string]*audio.Player
+type imageResources map[string]*ebiten.Image
+
+var imageResourcesFiles = map[string]string{
+	"BadgeEcs":          defaultconfig.CdnUrl + "static/badges/ecs.png",
+	"BadgeFn":           defaultconfig.CdnUrl + "static/badges/fc-function-calculation.png",
+	"BadgeOss":          defaultconfig.CdnUrl + "static/badges/object-storage-oss.png",
+	"BadgeServerless":   defaultconfig.CdnUrl + "static/badges/sae-serverless-application.png",
+	"BadgeBlockStorage": defaultconfig.CdnUrl + "static/badges/block-storage.png",
+	"BadgeCloudBackup":  defaultconfig.CdnUrl + "static/badges/cbs-database-backup.png",
+	"BadgeCdn":          defaultconfig.CdnUrl + "static/badges/cdn.png",
+	"BadgeApsaraDB":     defaultconfig.CdnUrl + "static/badges/mysql-cloud-database-mysql-version.png",
+	"WallImage":         defaultconfig.CdnUrl + "static/bg/1.png",
+	"ServerRoomImage":   defaultconfig.CdnUrl + "static/servers/server-room.png",
+	"OfficeImage":       defaultconfig.CdnUrl + "static/office.png",
+	"Office2Image":      defaultconfig.CdnUrl + "static/office-2.png",
+	"Office3Image":      defaultconfig.CdnUrl + "static/office-3.png",
+	"BricksImage":       defaultconfig.CdnUrl + "static/bg/bricks.png",
+	"VBricksImage":      defaultconfig.CdnUrl + "static/bg/vbricks.png",
+	"SafeDoorImage":     defaultconfig.CdnUrl + "static/door.png",
+	"LadderImage":       defaultconfig.CdnUrl + "static/ladder.png",
+	"BossImage":         defaultconfig.CdnUrl + "static/boss.png",
+	"OpenScreenImage":   defaultconfig.CdnUrl + "static/alirobo.png",
+}
+
+var audioResourceFiles = map[string]string{
+	"ExplosionSnd": defaultconfig.CdnUrl + "static/sound/rlauncher.mp3",
+	"BgMusic":      defaultconfig.CdnUrl + "static/sound/music.mp3",
+}
+
+var audioDataResourceFiles = map[string]string{
+	"LaunchSndData": defaultconfig.CdnUrl + "static/sound/fire.mp3",
 }
 
 // ResourceLoader encapsulates load logic
 type ResourceLoader interface {
 	Draw(screen *ebiten.Image)
 	Update()
+	GetAudioDataResource(key string) []byte
+	GetAudioResource(key string) *audio.Player
+	GetImageResource(key string) *ebiten.Image
 }
 
 type loader struct {
-	isLoading     bool
-	isLoaded      bool
-	resources     *Resources
-	readyCallback func(*Resources)
+	isLoaded           bool
+	audioDataResources map[string][]byte
+	audioResources     map[string]*audio.Player
+	imageResources     map[string]*ebiten.Image
+	readyCallback      func(resourceLoader ResourceLoader)
 }
 
 // New resource loader
-func New(readyCallback func(*Resources)) ResourceLoader {
+func New(readyCallback func(resourceLoader ResourceLoader)) ResourceLoader {
 	return &loader{
-		readyCallback: readyCallback,
+		readyCallback:      readyCallback,
+		audioDataResources: map[string][]byte{},
+		audioResources:     map[string]*audio.Player{},
+		imageResources:     map[string]*ebiten.Image{},
 	}
 }
 
 func (l *loader) Update() {
 	if l.isLoaded && l.readyCallback != nil {
-		l.readyCallback(l.resources)
+		l.readyCallback(l)
 	}
 
-	if !l.isLoading {
-		l.isLoading = true
+	if !l.isLoaded {
 		l.loadAll()
-		return
-	}
-
-	l.resources.mu.Lock()
-	defer l.resources.mu.Unlock()
-	if l.resources.loadedCount == resourceCount-1 {
-		l.isLoaded = true
 	}
 }
 
 // Draw draws the loading status to the screen
 func (l *loader) Draw(screen *ebiten.Image) {
-	l.resources.mu.Lock()
-	defer l.resources.mu.Unlock()
+	lodedCount := len(l.imageResources) + len(l.audioResources) + len(l.audioDataResources)
 	gametext.Draw(screen, "Loading your game", defaultconfig.ScreenW/2-100, defaultconfig.ScreenH/2-25)
-	gametext.Draw(screen, fmt.Sprintf("%d Resources loaded", l.resources.loadedCount), defaultconfig.ScreenW/2-100, defaultconfig.ScreenH/2)
+	gametext.Draw(screen, fmt.Sprintf("%d Resources loaded", lodedCount), defaultconfig.ScreenW/2-100, defaultconfig.ScreenH/2)
 	gametext.Draw(screen, "Please wait...", defaultconfig.ScreenW/2-100, defaultconfig.ScreenH/2+25)
 }
 
 func (l *loader) loadAll() {
-	l.resources = &Resources{}
-	go l.loadBadgeEcs()
-	go l.loadBadgeFn()
-	go l.loadBadgeOsss()
-	go l.loadBadgeServerlesss()
-	go l.loadBadgeBlockStorages()
-	go l.loadBadgeCloudBackups()
-	go l.loadBadgeCdns()
-	go l.loadBadgeApsaraDB()
-	go l.loadWallImage()
-	go l.loadServerRoomImage()
-	go l.loadOfficeImage()
-	go l.loadOffice2Image()
-	go l.loadOffice3Image()
-	go l.loadBricksImage()
-	go l.loadVBricksImage()
-	go l.loadSafeDoorImage()
-	go l.loadLadderImage()
-	go l.loadBossImage()
-	go l.loadOpenScreenImage()
-	go l.loadBadgeFireSound()
-	go l.loadLaunchSound()
-	go l.loadBadgeBgMusic()
+	for key, url := range imageResourcesFiles {
+		l.loadImage(key, url)
+	}
+
+	for key, url := range audioResourceFiles {
+		l.loadAudioContext(key, url)
+	}
+
+	for key, url := range audioDataResourceFiles {
+		l.loadAudioData(key, url)
+	}
+
+	l.isLoaded = true
+
 }
 
-func (l *loader) loadBadgeEcs() {
-	l.resources.mu.Lock()
-	defer l.resources.mu.Unlock()
-	l.resources.BadgeEcs = imageManager.LoadWithSize(defaultconfig.CdnUrl+"static/badges/ecs.png", badgeSize, badgeSize)
-	l.resources.loadedCount++
+func (l *loader) loadImage(key, url string) {
+	l.imageResources[key] = imageManager.Load(url)
 }
 
-func (l *loader) loadBadgeFn() {
-	l.resources.mu.Lock()
-	defer l.resources.mu.Unlock()
-	l.resources.BadgeFn = imageManager.LoadWithSize(defaultconfig.CdnUrl+"static/badges/fc-function-calculation.png", badgeSize, badgeSize)
-	l.resources.loadedCount++
+func (l *loader) loadAudioContext(key, url string) {
+	context, _ := sound.LoadMp3Sound(url)
+	// TODO error handling
+	l.audioResources[key] = context
 }
 
-func (l *loader) loadBadgeOsss() {
-	l.resources.mu.Lock()
-	defer l.resources.mu.Unlock()
-	l.resources.BadgeOss = imageManager.LoadWithSize(defaultconfig.CdnUrl+"static/badges/object-storage-oss.png", badgeSize, badgeSize)
-	l.resources.loadedCount++
+func (l *loader) loadAudioData(key, url string) {
+	data, _ := sound.LoadMp3SoundData(url)
+	l.audioDataResources[key] = data
 }
 
-func (l *loader) loadBadgeServerlesss() {
-	l.resources.mu.Lock()
-	defer l.resources.mu.Unlock()
-	l.resources.BadgeServerless = imageManager.LoadWithSize(defaultconfig.CdnUrl+"static/badges/sae-serverless-application.png", badgeSize, badgeSize)
-	l.resources.loadedCount++
+func (l *loader) GetAudioDataResource(key string) []byte {
+	if r, ok := l.audioDataResources[key]; ok {
+		return r
+	}
+
+	return nil
 }
 
-func (l *loader) loadBadgeBlockStorages() {
-	l.resources.mu.Lock()
-	defer l.resources.mu.Unlock()
-	l.resources.BadgeBlockStorage = imageManager.LoadWithSize(defaultconfig.CdnUrl+"static/badges/block-storage.png", badgeSize, badgeSize)
-	l.resources.loadedCount++
+func (l *loader) GetAudioResource(key string) *audio.Player {
+	if r, ok := l.audioResources[key]; ok {
+		return r
+	}
+
+	return nil
 }
 
-func (l *loader) loadBadgeCloudBackups() {
-	l.resources.mu.Lock()
-	defer l.resources.mu.Unlock()
-	l.resources.BadgeCloudBackup = imageManager.LoadWithSize(defaultconfig.CdnUrl+"static/badges/cbs-database-backup.png", badgeSize, badgeSize)
-	l.resources.loadedCount++
-}
+func (l *loader) GetImageResource(key string) *ebiten.Image {
+	if r, ok := l.imageResources[key]; ok {
+		return r
+	}
 
-func (l *loader) loadBadgeCdns() {
-	l.resources.mu.Lock()
-	defer l.resources.mu.Unlock()
-	l.resources.BadgeCdn = imageManager.LoadWithSize(defaultconfig.CdnUrl+"static/badges/cdn.png", badgeSize, badgeSize)
-	l.resources.loadedCount++
-}
-
-func (l *loader) loadBadgeApsaraDB() {
-	l.resources.mu.Lock()
-	defer l.resources.mu.Unlock()
-	l.resources.BadgeApsaraDB = imageManager.LoadWithSize(defaultconfig.CdnUrl+"static/badges/mysql-cloud-database-mysql-version.png", badgeSize, badgeSize)
-	l.resources.loadedCount++
-}
-
-func (l *loader) loadWallImage() {
-	l.resources.mu.Lock()
-	defer l.resources.mu.Unlock()
-	l.resources.WallImage = imageManager.Load(defaultconfig.CdnUrl + "static/bg/1.png")
-	l.resources.loadedCount++
-}
-
-func (l *loader) loadServerRoomImage() {
-	l.resources.mu.Lock()
-	defer l.resources.mu.Unlock()
-	l.resources.ServerRoomImage = imageManager.LoadWithSize(defaultconfig.CdnUrl+"static/servers/server-room.png", 400, 265)
-	l.resources.loadedCount++
-}
-
-func (l *loader) loadOfficeImage() {
-	l.resources.mu.Lock()
-	defer l.resources.mu.Unlock()
-	l.resources.OfficeImage = imageManager.LoadWithSize(defaultconfig.CdnUrl+"static/office.png", 640, 480)
-	l.resources.loadedCount++
-}
-
-func (l *loader) loadOffice2Image() {
-	l.resources.mu.Lock()
-	defer l.resources.mu.Unlock()
-	l.resources.Office2Image = imageManager.LoadWithSize(defaultconfig.CdnUrl+"static/office-2.png", 320, 200)
-	l.resources.loadedCount++
-}
-
-func (l *loader) loadOffice3Image() {
-	l.resources.mu.Lock()
-	defer l.resources.mu.Unlock()
-	l.resources.Office3Image = imageManager.LoadWithSize(defaultconfig.CdnUrl+"static/office-3.png", 799, 399)
-	l.resources.loadedCount++
-}
-
-func (l *loader) loadBricksImage() {
-	l.resources.mu.Lock()
-	defer l.resources.mu.Unlock()
-	l.resources.BricksImage = imageManager.Load(defaultconfig.CdnUrl + "static/bg/bricks.png")
-	l.resources.loadedCount++
-}
-
-func (l *loader) loadVBricksImage() {
-	l.resources.mu.Lock()
-	defer l.resources.mu.Unlock()
-	l.resources.VBricksImage = imageManager.Load(defaultconfig.CdnUrl + "static/bg/vbricks.png")
-	l.resources.loadedCount++
-}
-
-func (l *loader) loadSafeDoorImage() {
-	l.resources.mu.Lock()
-	defer l.resources.mu.Unlock()
-	l.resources.SafeDoorImage = imageManager.ReplicateImageVertically(imageManager.Load(defaultconfig.CdnUrl+"static/door.png"), 10)
-	l.resources.loadedCount++
-}
-
-func (l *loader) loadLadderImage() {
-	l.resources.mu.Lock()
-	defer l.resources.mu.Unlock()
-	l.resources.LadderImage = imageManager.ReplicateImageVertically(
-		imageManager.LoadWithSize(defaultconfig.CdnUrl+"static/ladder.png", 40, 40),
-		40,
-	)
-	l.resources.loadedCount++
-}
-
-func (l *loader) loadBossImage() {
-	l.resources.mu.Lock()
-	defer l.resources.mu.Unlock()
-	l.resources.BossImage = imageManager.LoadWithSize(defaultconfig.CdnUrl+"static/boss.png", 213, 327)
-	l.resources.loadedCount++
-}
-
-// OpenScreenImage: imageManager.LoadWithSize(defaultconfig.CdnUrl + "static/alirobo.png", defaultconfig.ScreenW, defaultconfig.ScreenH),
-func (l *loader) loadOpenScreenImage() {
-	l.resources.mu.Lock()
-	defer l.resources.mu.Unlock()
-	l.resources.OpenScreenImage = imageManager.LoadWithSize(defaultconfig.CdnUrl+"static/alirobo.png", defaultconfig.ScreenW, defaultconfig.ScreenH)
-	l.resources.loadedCount++
-}
-
-func (l *loader) loadBadgeFireSound() {
-	l.resources.mu.Lock()
-	defer l.resources.mu.Unlock()
-	l.resources.ExplosionSnd, _ = sound.LoadMp3Sound(defaultconfig.CdnUrl + "static/sound/fire.mp3")
-	l.resources.loadedCount++
-}
-
-func (l *loader) loadLaunchSound() {
-	l.resources.mu.Lock()
-	defer l.resources.mu.Unlock()
-	l.resources.LaunchSndData, _ = sound.LoadMp3SoundData(defaultconfig.CdnUrl + "static/sound/rlauncher.mp3")
-	l.resources.loadedCount++
-}
-
-func (l *loader) loadBadgeBgMusic() {
-	l.resources.mu.Lock()
-	defer l.resources.mu.Unlock()
-	l.resources.BgMusic, _ = sound.LoadMp3Sound(defaultconfig.CdnUrl + "static/sound/music.mp3")
-	l.resources.loadedCount++
+	return nil
 }

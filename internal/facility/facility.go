@@ -39,9 +39,23 @@ type spriteList struct {
 	officeMan sprite.Sprite
 }
 
+type images struct {
+	bricksImage     *ebiten.Image
+	vBricksImage    *ebiten.Image
+	ladderImage     *ebiten.Image
+	safeDoorImage   *ebiten.Image
+	bossImage       *ebiten.Image
+	wallImage       *ebiten.Image
+	officeImage     *ebiten.Image
+	office2Image    *ebiten.Image
+	office3Image    *ebiten.Image
+	serverRoomImage *ebiten.Image
+}
+
 type fac struct {
 	screen              *ebiten.Image
-	images              *resourceloader.Resources
+	images              images
+	resourceLoader      resourceloader.ResourceLoader
 	sprites             spriteList
 	eventCallback       func(defaultconfig.AlibabaServiceType)
 	undergroundFacility facility
@@ -65,10 +79,11 @@ type fac struct {
 	officeWalkerOffset float64
 }
 
-func New(eventCallback func(eventCallback defaultconfig.AlibabaServiceType), images *resourceloader.Resources) Facility {
+func New(eventCallback func(eventCallback defaultconfig.AlibabaServiceType), images resourceloader.ResourceLoader) Facility {
 	f := &fac{
-		images: images,
+		resourceLoader: images,
 	}
+	f.initImages()
 	f.init()
 	f.initGameMap()
 	f.initSprites()
@@ -88,6 +103,21 @@ func (f *fac) GetX() float64 {
 
 func (f *fac) SetX(x float64) {
 	f.undergroundFacility.x = x
+}
+
+func (f *fac) initImages() {
+	f.images = images{
+		bricksImage:     f.resourceLoader.GetImageResource("BricksImage"),
+		vBricksImage:    f.resourceLoader.GetImageResource("VBricksImage"),
+		ladderImage:     f.resourceLoader.GetImageResource("LadderImage"),
+		safeDoorImage:   f.resourceLoader.GetImageResource("SafeDoorImage"),
+		bossImage:       f.resourceLoader.GetImageResource("BossImage"),
+		wallImage:       f.resourceLoader.GetImageResource("WallImage"),
+		officeImage:     f.resourceLoader.GetImageResource("OfficeImage"),
+		office2Image:    f.resourceLoader.GetImageResource("Office2Image"),
+		office3Image:    f.resourceLoader.GetImageResource("Office3Image"),
+		serverRoomImage: f.resourceLoader.GetImageResource("ServerRoomImage"),
+	}
 }
 
 func (f *fac) init() {
@@ -246,7 +276,7 @@ func (f *fac) drawRoomBackground() {
 		op,
 	)
 
-	croppedBricksImage := imageManager.CropVertical(f.images.BricksImage, f.room.width, 25)
+	croppedBricksImage := imageManager.CropVertical(f.images.bricksImage, f.room.width, 25)
 
 	// Bricks on top
 	f.screen.DrawImage(croppedBricksImage, op)
@@ -265,7 +295,7 @@ func (f *fac) drawLeftWallIfNecessary() {
 	op := &ebiten.DrawImageOptions{}
 	op.GeoM.Translate(f.roomX, f.roomY)
 	f.screen.DrawImage(
-		imageManager.CropVertical(f.images.VBricksImage, 25, f.roomHeight),
+		imageManager.CropVertical(f.images.vBricksImage, 25, f.roomHeight),
 		op,
 	)
 }
@@ -278,7 +308,7 @@ func (f *fac) drawRightWallIfNecessary() {
 	op := &ebiten.DrawImageOptions{}
 	op.GeoM.Translate(f.roomX+f.room.width-20, f.roomY)
 	f.screen.DrawImage(
-		imageManager.CropVertical(f.images.VBricksImage, 25, f.roomHeight),
+		imageManager.CropVertical(f.images.vBricksImage, 25, f.roomHeight),
 		op,
 	)
 }
@@ -291,7 +321,7 @@ func (f *fac) drawLeftSafeDoorIfNecessary() {
 	op := &ebiten.DrawImageOptions{}
 	op.GeoM.Translate(f.roomX, f.roomY)
 	f.screen.DrawImage(
-		imageManager.CropVertical(f.images.SafeDoorImage, 25, f.roomHeight),
+		imageManager.CropVertical(f.images.safeDoorImage, 25, f.roomHeight),
 		op,
 	)
 }
@@ -304,7 +334,7 @@ func (f *fac) drawRightSafeDoorIfNecessary() {
 	op := &ebiten.DrawImageOptions{}
 	op.GeoM.Translate(f.roomX+f.room.width-20, f.roomY)
 	f.screen.DrawImage(
-		imageManager.CropVertical(f.images.SafeDoorImage, 25, f.roomHeight),
+		imageManager.CropVertical(f.images.safeDoorImage, 25, f.roomHeight),
 		op,
 	)
 }
@@ -316,7 +346,7 @@ func (f *fac) drawPassageDown() {
 		op.GeoM.Reset()
 		op.GeoM.Translate(f.roomX+passage.pos, f.roomBottom)
 
-		img := f.images.LadderImage.SubImage(image.Rect(0, 0, 40, passage.ladderHeight))
+		img := f.images.ladderImage.SubImage(image.Rect(0, 0, 40, passage.ladderHeight))
 		f.screen.DrawImage(img.(*ebiten.Image), op)
 
 		if f.robotXinGrid > absolutePassagePos-30 && f.robotXinGrid < absolutePassagePos+30 && f.isActiveLevel {
@@ -333,7 +363,7 @@ func (f *fac) drawPassageUp() {
 		op.GeoM.Reset()
 		op.GeoM.Translate(f.roomX+passage.pos, f.roomBottom-float64(passage.ladderHeight))
 
-		img := f.images.LadderImage.SubImage(image.Rect(0, 0, 40, passage.ladderHeight))
+		img := f.images.ladderImage.SubImage(image.Rect(0, 0, 40, passage.ladderHeight))
 		f.screen.DrawImage(img.(*ebiten.Image), op)
 
 		if f.robotXinGrid > absolutePassagePos-30 && f.robotXinGrid < absolutePassagePos+30 && f.isActiveLevel {

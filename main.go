@@ -81,8 +81,8 @@ type sprites struct {
 type game struct {
 	apiClient           api.APIClient
 	resourceLoading     bool
+	openScreenImage     *ebiten.Image
 	resourceLoader      resourceloader.ResourceLoader
-	resources           *resourceloader.Resources
 	userScores          api.UserScores
 	userScoresLoadError string
 	underGroundFacility facility.Facility
@@ -145,10 +145,10 @@ func (g *game) preInitAPI() {
 }
 
 func (g *game) preInitResources() {
-	g.resourceLoader = resourceloader.New(func(resources *resourceloader.Resources) {
-		g.resources = resources
-		g.underGroundFacility = facility.New(g.gameEventHandler, g.resources)
+	g.resourceLoader = resourceloader.New(func(resourceLoader resourceloader.ResourceLoader) {
+		g.underGroundFacility = facility.New(g.gameEventHandler, resourceLoader)
 		g.gameStatus.gameMode = modeOpenScreen
+		g.openScreenImage = resourceLoader.GetImageResource("OpenScreenImage")
 		g.loadBadges()
 	})
 }
@@ -408,43 +408,43 @@ func (g *game) loadBadges() {
 	g.badges = []badge{
 		{
 			kind: defaultconfig.Ecs,
-			img:  g.resources.BadgeEcs,
+			img:  g.resourceLoader.GetImageResource("BadgeEcs"),
 			x:    x,
 		},
 		{
 			kind: defaultconfig.FunctionCompute,
-			img:  g.resources.BadgeFn,
+			img:  g.resourceLoader.GetImageResource("BadgeFn"),
 			x:    x - badgeDistance,
 		},
 		{
 
 			kind: defaultconfig.ObjectStorageService,
-			img:  g.resources.BadgeOss,
+			img:  g.resourceLoader.GetImageResource("BadgeOss"),
 			x:    x - (2 * badgeDistance),
 		},
 		{
 			kind: defaultconfig.ServerlessComputing,
-			img:  g.resources.BadgeServerless,
+			img:  g.resourceLoader.GetImageResource("BadgeServerless"),
 			x:    x - (3 * badgeDistance),
 		},
 		{
 			kind: defaultconfig.BlockStorage,
-			img:  g.resources.BadgeBlockStorage,
+			img:  g.resourceLoader.GetImageResource("BadgeBlockStorage"),
 			x:    x - (4 * badgeDistance),
 		},
 		{
 			kind: defaultconfig.CloudBackup,
-			img:  g.resources.BadgeCloudBackup,
+			img:  g.resourceLoader.GetImageResource("BadgeCloudBackup"),
 			x:    x - (5 * badgeDistance),
 		},
 		{
 			kind: defaultconfig.Cdn,
-			img:  g.resources.BadgeCdn,
+			img:  g.resourceLoader.GetImageResource("BadgeCdn"),
 			x:    x - (6 * badgeDistance),
 		},
 		{
 			kind: defaultconfig.ApsaraDB,
-			img:  g.resources.BadgeApsaraDB,
+			img:  g.resourceLoader.GetImageResource("BadgeApsaraDB"),
 			x:    x - (7 * badgeDistance),
 		},
 	}
@@ -463,13 +463,13 @@ func (g *game) loadSprites() {
 }
 
 func (g *game) playExplosionSound() {
-	sound.Play(g.resources.ExplosionSnd)
+	sound.Play(g.resourceLoader.GetAudioResource("ExplosionSnd"))
 }
 
 func (g *game) playLaunchSound() {
-	sound.PlayNewFromData(g.resources.LaunchSndData)
+	sound.PlayNewFromData(g.resourceLoader.GetAudioDataResource("LaunchSndData"))
 }
 
 func (g *game) playBgMusic() {
-	sound.Play(g.resources.BgMusic)
+	sound.Play(g.resourceLoader.GetAudioResource("BgMusic"))
 }

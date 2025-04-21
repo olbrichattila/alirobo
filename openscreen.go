@@ -9,7 +9,7 @@ func (g *game) updateOpenScreen() {
 func (g *game) drawOpenScreen(screen *ebiten.Image) {
 	op := &ebiten.DrawImageOptions{}
 	op.GeoM.Translate(0, 0)
-	screen.DrawImage(g.resources.OpenScreenImage, op)
+	screen.DrawImage(g.openScreenImage, op)
 	g.openScreenButtons.Render(screen)
 }
 

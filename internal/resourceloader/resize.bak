@@ -1,0 +1,390 @@
+// Package resourceloader loads images, sounds form HTTP server async
+package resourceloader
+
+import (
+	"alibabarobotgame/internal/defaultconfig"
+	imageManager "alibabarobotgame/internal/image"
+	"alibabarobotgame/internal/sound"
+	"fmt"
+	"image"
+	"image/png"
+	"math"
+	"os"
+	"sync"
+
+	"github.com/hajimehoshi/ebiten/v2"
+	"github.com/hajimehoshi/ebiten/v2/audio"
+)
+
+const (
+	badgeSize     = 25
+	resourceCount = 23
+)
+
+// Resources loaded
+type Resources struct {
+	mu                sync.RWMutex
+	loadedCount       int
+	BadgeEcs          *ebiten.Image
+	BadgeFn           *ebiten.Image
+	BadgeOss          *ebiten.Image
+	BadgeServerless   *ebiten.Image
+	BadgeBlockStorage *ebiten.Image
+	BadgeCloudBackup  *ebiten.Image
+	BadgeCdn          *ebiten.Image
+	BadgeApsaraDB     *ebiten.Image
+	WallImage         *ebiten.Image
+	ServerRoomImage   *ebiten.Image
+	OfficeImage       *ebiten.Image
+	Office2Image      *ebiten.Image
+	Office3Image      *ebiten.Image
+	BricksImage       *ebiten.Image
+	VBricksImage      *ebiten.Image
+	SafeDoorImage     *ebiten.Image
+	LadderImage       *ebiten.Image
+	BossImage         *ebiten.Image
+	OpenScreenImage   *ebiten.Image
+	LaunchSndData     []byte
+	ExplosionSnd      *audio.Player
+	BgMusic           *audio.Player
+}
+
+// ResourceLoader encapsulates load logic
+type ResourceLoader interface {
+	Draw(screen *ebiten.Image)
+	Update()
+}
+
+type loader struct {
+	isLoading     bool
+	isLoaded      bool
+	resources     *Resources
+	readyCallback func(*Resources)
+}
+
+// New resource loader
+func New(readyCallback func(*Resources)) ResourceLoader {
+	return &loader{
+		readyCallback: readyCallback,
+	}
+}
+
+func (l *loader) Update() {
+	if l.isLoaded && l.readyCallback != nil {
+		l.readyCallback(l.resources)
+	}
+
+	if !l.isLoading {
+		l.isLoading = true
+		l.loadAll()
+		return
+	}
+
+	l.resources.mu.Lock()
+	defer l.resources.mu.Unlock()
+	if l.resources.loadedCount == resourceCount-1 {
+		l.isLoaded = true
+	}
+}
+
+// Draw draws the loading status to the screen
+func (l *loader) Draw(screen *ebiten.Image) {
+	// l.resources.mu.Lock()
+	// defer l.resources.mu.Unlock()
+	// gametext.Draw(screen, "Loading your game", defaultconfig.ScreenW/2-100, defaultconfig.ScreenH/2-25)
+	// gametext.Draw(screen, fmt.Sprintf("%d Resources loaded", l.resources.loadedCount), defaultconfig.ScreenW/2-100, defaultconfig.ScreenH/2)
+	// gametext.Draw(screen, "Please wait...", defaultconfig.ScreenW/2-100, defaultconfig.ScreenH/2+25)
+}
+
+func (l *loader) loadAll() {
+	l.resize()
+	return
+	// l.resources = &Resources{}
+	// go l.loadBadgeEcs()
+	// go l.loadBadgeFn()
+	// go l.loadBadgeOsss()
+	// go l.loadBadgeServerlesss()
+	// go l.loadBadgeBlockStorages()
+	// go l.loadBadgeCloudBackups()
+	// go l.loadBadgeCdns()
+	// go l.loadBadgeApsaraDB()
+	// go l.loadWallImage()
+	// go l.loadServerRoomImage()
+	// go l.loadOfficeImage()
+	// go l.loadOffice2Image()
+	// go l.loadOffice3Image()
+	// go l.loadBricksImage()
+	// go l.loadVBricksImage()
+	// go l.loadSafeDoorImage()
+	// go l.loadLadderImage()
+	// go l.loadBossImage()
+	// go l.loadOpenScreenImage()
+	// go l.loadBadgeFireSound()
+	// go l.loadLaunchSound()
+	// go l.loadBadgeBgMusic()
+}
+
+func (l *loader) loadBadgeEcs() {
+	l.resources.mu.Lock()
+	defer l.resources.mu.Unlock()
+	l.resources.BadgeEcs = imageManager.LoadWithSize(defaultconfig.CdnUrl+"static/badges/ecs.png", badgeSize, badgeSize)
+	l.resources.loadedCount++
+}
+
+func (l *loader) loadBadgeFn() {
+	l.resources.mu.Lock()
+	defer l.resources.mu.Unlock()
+	l.resources.BadgeFn = imageManager.LoadWithSize(defaultconfig.CdnUrl+"static/badges/fc-function-calculation.png", badgeSize, badgeSize)
+	l.resources.loadedCount++
+}
+
+func (l *loader) loadBadgeOsss() {
+	l.resources.mu.Lock()
+	defer l.resources.mu.Unlock()
+	l.resources.BadgeOss = imageManager.LoadWithSize(defaultconfig.CdnUrl+"static/badges/object-storage-oss.png", badgeSize, badgeSize)
+	l.resources.loadedCount++
+}
+
+func (l *loader) loadBadgeServerlesss() {
+	l.resources.mu.Lock()
+	defer l.resources.mu.Unlock()
+	l.resources.BadgeServerless = imageManager.LoadWithSize(defaultconfig.CdnUrl+"static/badges/sae-serverless-application.png", badgeSize, badgeSize)
+	l.resources.loadedCount++
+}
+
+func (l *loader) loadBadgeBlockStorages() {
+	l.resources.mu.Lock()
+	defer l.resources.mu.Unlock()
+	l.resources.BadgeBlockStorage = imageManager.LoadWithSize(defaultconfig.CdnUrl+"static/badges/block-storage.png", badgeSize, badgeSize)
+	l.resources.loadedCount++
+}
+
+func (l *loader) loadBadgeCloudBackups() {
+	l.resources.mu.Lock()
+	defer l.resources.mu.Unlock()
+	l.resources.BadgeCloudBackup = imageManager.LoadWithSize(defaultconfig.CdnUrl+"static/badges/cbs-database-backup.png", badgeSize, badgeSize)
+	l.resources.loadedCount++
+}
+
+func (l *loader) loadBadgeCdns() {
+	l.resources.mu.Lock()
+	defer l.resources.mu.Unlock()
+	l.resources.BadgeCdn = imageManager.LoadWithSize(defaultconfig.CdnUrl+"static/badges/cdn.png", badgeSize, badgeSize)
+	l.resources.loadedCount++
+}
+
+func (l *loader) loadBadgeApsaraDB() {
+	l.resources.mu.Lock()
+	defer l.resources.mu.Unlock()
+	l.resources.BadgeApsaraDB = imageManager.LoadWithSize(defaultconfig.CdnUrl+"static/badges/mysql-cloud-database-mysql-version.png", badgeSize, badgeSize)
+	l.resources.loadedCount++
+}
+
+func (l *loader) loadWallImage() {
+	l.resources.mu.Lock()
+	defer l.resources.mu.Unlock()
+	l.resources.WallImage = imageManager.Load("static/bg/1.png")
+	l.resources.loadedCount++
+}
+
+func (l *loader) loadServerRoomImage() {
+	l.resources.mu.Lock()
+	defer l.resources.mu.Unlock()
+	l.resources.ServerRoomImage = imageManager.LoadWithSize(defaultconfig.CdnUrl+"static/servers/server-room.png", 400, 265)
+	l.resources.loadedCount++
+}
+
+func (l *loader) loadOfficeImage() {
+	l.resources.mu.Lock()
+	defer l.resources.mu.Unlock()
+	l.resources.OfficeImage = imageManager.LoadWithSize(defaultconfig.CdnUrl+"static/office.png", 640, 480)
+	l.resources.loadedCount++
+}
+
+func (l *loader) loadOffice2Image() {
+	l.resources.mu.Lock()
+	defer l.resources.mu.Unlock()
+	l.resources.Office2Image = imageManager.LoadWithSize(defaultconfig.CdnUrl+"static/office-2.png", 320, 200)
+	l.resources.loadedCount++
+}
+
+func (l *loader) loadOffice3Image() {
+	l.resources.mu.Lock()
+	defer l.resources.mu.Unlock()
+	l.resources.Office3Image = imageManager.LoadWithSize(defaultconfig.CdnUrl+"static/office-3.png", 799, 399)
+	l.resources.loadedCount++
+}
+
+func (l *loader) loadBricksImage() {
+	l.resources.mu.Lock()
+	defer l.resources.mu.Unlock()
+	l.resources.BricksImage = imageManager.Load("static/bg/bricks.png")
+	l.resources.loadedCount++
+}
+
+func (l *loader) loadVBricksImage() {
+	l.resources.mu.Lock()
+	defer l.resources.mu.Unlock()
+	l.resources.VBricksImage = imageManager.Load("static/bg/vbricks.png")
+	l.resources.loadedCount++
+}
+
+func (l *loader) loadSafeDoorImage() {
+	l.resources.mu.Lock()
+	defer l.resources.mu.Unlock()
+	l.resources.SafeDoorImage = imageManager.ReplicateImageVertically(imageManager.Load(defaultconfig.CdnUrl+"static/door.png"), 10)
+	l.resources.loadedCount++
+}
+
+func (l *loader) loadLadderImage() {
+	l.resources.mu.Lock()
+	defer l.resources.mu.Unlock()
+	l.resources.LadderImage = imageManager.ReplicateImageVertically(
+		imageManager.LoadWithSize(defaultconfig.CdnUrl+"static/ladder.png", 40, 40),
+		40,
+	)
+	l.resources.loadedCount++
+}
+
+func (l *loader) loadBossImage() {
+	l.resources.mu.Lock()
+	defer l.resources.mu.Unlock()
+	l.resources.BossImage = imageManager.LoadWithSize(defaultconfig.CdnUrl+"static/boss.png", 213, 327)
+	l.resources.loadedCount++
+}
+
+// OpenScreenImage: imageManager.LoadWithSize("static/alirobo.png", defaultconfig.ScreenW, defaultconfig.ScreenH),
+func (l *loader) loadOpenScreenImage() {
+	l.resources.mu.Lock()
+	defer l.resources.mu.Unlock()
+	l.resources.OpenScreenImage = imageManager.LoadWithSize(defaultconfig.CdnUrl+"static/alirobo.png", defaultconfig.ScreenW, defaultconfig.ScreenH)
+	l.resources.loadedCount++
+}
+
+func (l *loader) loadBadgeFireSound() {
+	l.resources.mu.Lock()
+	defer l.resources.mu.Unlock()
+	l.resources.ExplosionSnd, _ = sound.LoadMp3Sound("static/sound/fire.mp3")
+	l.resources.loadedCount++
+}
+
+func (l *loader) loadLaunchSound() {
+	l.resources.mu.Lock()
+	defer l.resources.mu.Unlock()
+	l.resources.LaunchSndData, _ = sound.LoadMp3SoundData("static/sound/rlauncher.mp3")
+	l.resources.loadedCount++
+}
+
+func (l *loader) loadBadgeBgMusic() {
+	l.resources.mu.Lock()
+	defer l.resources.mu.Unlock()
+	l.resources.BgMusic, _ = sound.LoadMp3Sound("static/sound/music.mp3")
+	l.resources.loadedCount++
+}
+
+func (l *loader) resize() {
+	files := []string{
+		"/robot/Walk_000.png",
+		"/robot/Walk_001.png",
+		"/robot/Walk_002.png",
+		"/robot/Walk_003.png",
+		"/robot/Walk_004.png",
+		"/robot/Walk_005.png",
+		"/robot/Walk_006.png",
+		"/robot/Walk_007.png",
+		"/robot/Walk_008.png",
+		"/robot/Walk_009.png",
+		"/robot/Walk_010.png",
+		"/robot/Walk_011.png",
+
+		"/person/officeman/1.png",
+		"/person/officeman/2.png",
+		"/person/officeman/3.png",
+		"/person/officeman/4.png",
+		"/person/officeman/5.png",
+		"/person/officeman/6.png",
+	}
+
+	for _, fileName := range files {
+		fmt.Println("resize", "testApiServer/static"+fileName)
+		img, _, _, _ := l.rescaleImageToFit("testApiServer/static"+fileName, 80, 80)
+		err := l.saveEbitenImageAsPNG(img, "static"+fileName)
+		if err != nil {
+			fmt.Println(err.Error())
+		}
+	}
+
+}
+
+func (l *loader) loadImageFromFile(path string) (*ebiten.Image, error) {
+	// Open the file
+	file, err := os.Open(path)
+	if err != nil {
+		return nil, err
+	}
+	defer file.Close()
+
+	// Decode image (PNG, JPEG, etc.)
+	img, _, err := image.Decode(file)
+	if err != nil {
+		return nil, err
+	}
+
+	// Convert to ebiten.Image
+	ebitenImg := ebiten.NewImageFromImage(img)
+	return ebitenImg, nil
+}
+
+func (l *loader) rescaleImageToFit(fileName string, targetWidth, targetHeight int) (*ebiten.Image, int, int, error) {
+	img, err := l.loadImageFromFile(fileName)
+	// img, _, err := ebitenutil.NewImageFromFile(imageName)
+	if err != nil {
+		return nil, 0, 0, err
+	}
+
+	bounds := img.Bounds()
+	origWidth := bounds.Dx()
+	origHeight := bounds.Dy()
+
+	widthRatio := float64(targetWidth) / float64(origWidth)
+	heightRatio := float64(targetHeight) / float64(origHeight)
+
+	scale := math.Min(widthRatio, heightRatio)
+	newWidth := int(float64(origWidth) * scale)
+	newHeight := int(float64(origHeight) * scale)
+
+	rescaled := ebiten.NewImage(newWidth, newHeight)
+
+	geom := ebiten.GeoM{}
+	geom.Scale(scale, scale)
+
+	rescaled.DrawImage(img, &ebiten.DrawImageOptions{
+		GeoM: geom,
+	})
+
+	return rescaled, newWidth, newHeight, nil
+}
+
+func (l *loader) saveEbitenImageAsPNG(img *ebiten.Image, filename string) error {
+	w, h := img.Size()
+
+	rgbaImg := ebiten.NewImage(w, h)
+	rgbaImg.DrawImage(img, nil)
+
+	pixels := make([]byte, 4*w*h)
+	rgbaImg.ReadPixels(pixels)
+
+	goImg := &image.RGBA{
+		Pix:    pixels,
+		Stride: 4 * w,
+		Rect:   image.Rect(0, 0, w, h),
+	}
+
+	f, err := os.Create(filename)
+	if err != nil {
+		return err
+	}
+	defer f.Close()
+
+	return png.Encode(f, goImg)
+}
