@@ -4,6 +4,7 @@ package server
 import (
 	"aliserver/storage"
 	"encoding/json"
+	"fmt"
 	"net/http"
 )
 
@@ -31,6 +32,7 @@ type handleFunc func(w http.ResponseWriter, r *http.Request)
 func (s *server) Serve() error {
 	http.HandleFunc("/top", s.enableCORS(s.handlerTop10()))
 	http.HandleFunc("/add", s.enableCORS(s.handlerAddScore()))
+	fmt.Println("serving on 3000")
 
 	return http.ListenAndServe(":3000", nil)
 }

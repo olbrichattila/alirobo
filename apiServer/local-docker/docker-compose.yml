@@ -1,0 +1,25 @@
+version: '3.8'
+
+services:
+  
+  postgres:
+    image: postgres:latest
+    container_name: alipostgres
+    environment:
+      POSTGRES_DB: postgres
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - ali_postgres_data:/var/lib/postgresql/data
+    networks:
+      - alinetwork
+
+  
+volumes:
+  ali_postgres_data:
+  
+networks:
+  alinetwork:
+    driver: bridge

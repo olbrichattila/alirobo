@@ -7,10 +7,10 @@ type AlibabaServiceType int
 const (
 	ScreenW = 840
 	ScreenH = 480
-	CdnUrl  = "https://alirobot.lon1.digitaloceanspaces.com/"
+	// CdnUrl  = "https://alirobot.lon1.digitaloceanspaces.com/"
 	// CdnUrl = "https://gamechallange.oss-eu-west-1.aliyuncs.com/"
-	//CdnUrl = "https://www.alirobo.fun/"
-	ApiUrl = "http://localhost:3000/"
+	CdnUrl = "https://www.alirobo.fun/"
+	ApiUrl = "https://www.alirobo.fun/api/"
 )
 
 // Events

@@ -15,6 +15,7 @@ func (g *game) updateTop10() {
 func (g *game) drawTop10(screen *ebiten.Image) {
 	if g.userScores == nil {
 		gametext.Draw(screen, "Loading user scores", 350, 200)
+		g.top10Buttons.Render(screen)
 		return
 	}
 
