@@ -35,7 +35,8 @@ func New() Button {
 func (b *btn) New(caption string, x, y, w, h int, onClick func()) {
 	btnBg := ebiten.NewImage(w, h)
 	btnBg.Fill(color.RGBA{240, 33, 33, 255})
-	gametext.Draw(btnBg, caption, 5, 20)
+	textColor := color.RGBA{255, 255, 255, 255}
+	gametext.DrawWithColor(btnBg, caption, 5, 20, textColor)
 	b.buttons[caption] = btnEvent{
 		background: btnBg,
 		x:          x,

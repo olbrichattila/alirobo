@@ -7,6 +7,8 @@ import (
 	imageManager "alibabarobotgame/internal/image"
 	"alibabarobotgame/internal/sound"
 	"fmt"
+	"image"
+	"image/color"
 	"sync"
 
 	"github.com/hajimehoshi/ebiten/v2"
@@ -41,7 +43,7 @@ var imageResourcesFiles = map[string]string{
 	"SafeDoorImage":     defaultconfig.CdnUrl + "static/door.png",
 	"LadderImage":       defaultconfig.CdnUrl + "static/ladder.png",
 	"BossImage":         defaultconfig.CdnUrl + "static/boss.png",
-	"OpenScreenImage":   defaultconfig.CdnUrl + "static/alirobo.png",
+	"OpenScreenImage":   defaultconfig.CdnUrl + "static/alirobo2.png",
 }
 
 var audioResourceFiles = map[string]string{
@@ -65,6 +67,8 @@ type ResourceLoader interface {
 type loader struct {
 	isLoaded           bool
 	isLoading          bool
+	bgBar              *ebiten.Image
+	gBar               *ebiten.Image
 	audioDataResources map[string][]byte
 	audioResources     map[string]*audio.Player
 	imageResources     map[string]*ebiten.Image
@@ -74,8 +78,16 @@ type loader struct {
 
 // New resource loader
 func New(readyCallback func(resourceLoader ResourceLoader)) ResourceLoader {
+	bgBar := ebiten.NewImage(defaultconfig.ScreenW-100, 60)
+	bgBar.Fill(color.RGBA{255, 255, 255, 255})
+
+	gBar := ebiten.NewImage(defaultconfig.ScreenW-110, 40)
+	gBar.Fill(color.RGBA{0, 0, 255, 255})
+
 	return &loader{
 		readyCallback:      readyCallback,
+		bgBar:              bgBar,
+		gBar:               gBar,
 		audioDataResources: map[string][]byte{},
 		audioResources:     map[string]*audio.Player{},
 		imageResources:     map[string]*ebiten.Image{},
@@ -96,9 +108,23 @@ func (l *loader) Update() {
 
 // Draw draws the loading status to the screen
 func (l *loader) Draw(screen *ebiten.Image) {
-	lodedCount := len(l.imageResources) + len(l.audioResources) + len(l.audioDataResources)
+	loadedCount := len(l.imageResources) + len(l.audioResources) + len(l.audioDataResources)
+	top := float64(300)
+
+	op := &ebiten.DrawImageOptions{}
+	op.GeoM.Translate(50, top)
+	screen.DrawImage(l.bgBar, op)
+
+	barWidth := int(float64(loadedCount) / float64(21) * float64(defaultconfig.ScreenW-120))
+	if barWidth > 0 {
+		barImg := l.gBar.SubImage(image.Rect(0, 0, barWidth, 40)).(*ebiten.Image)
+		op.GeoM.Reset()
+		op.GeoM.Translate(55, top+10)
+		screen.DrawImage(barImg, op)
+	}
+
 	gametext.Draw(screen, "Loading your game", defaultconfig.ScreenW/2-100, defaultconfig.ScreenH/2-25)
-	gametext.Draw(screen, fmt.Sprintf("%d Resources loaded", lodedCount), defaultconfig.ScreenW/2-100, defaultconfig.ScreenH/2)
+	gametext.Draw(screen, fmt.Sprintf("%d Resources loaded", loadedCount), defaultconfig.ScreenW/2-100, defaultconfig.ScreenH/2)
 	gametext.Draw(screen, "Please wait...", defaultconfig.ScreenW/2-100, defaultconfig.ScreenH/2+25)
 }
 

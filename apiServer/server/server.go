@@ -30,9 +30,11 @@ type userScore struct {
 type handleFunc func(w http.ResponseWriter, r *http.Request)
 
 func (s *server) Serve() error {
+	fmt.Println("serving on 3000")
+	// fs := http.FileServer(http.Dir("."))
 	http.HandleFunc("/top", s.enableCORS(s.handlerTop10()))
 	http.HandleFunc("/add", s.enableCORS(s.handlerAddScore()))
-	fmt.Println("serving on 3000")
+	// http.Handle("/", http.StripPrefix("/", fs))
 
 	return http.ListenAndServe(":3000", nil)
 }

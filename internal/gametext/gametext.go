@@ -38,5 +38,10 @@ func loadFontFace() font.Face {
 
 func Draw(screen *ebiten.Image, drawText string, x, y float64) {
 	textColor := color.RGBA{255, 165, 0, 255}
+	DrawWithColor(screen, drawText, x, y, textColor)
+	text.Draw(screen, drawText, fontFace, int(x), int(y), textColor)
+}
+
+func DrawWithColor(screen *ebiten.Image, drawText string, x, y float64, textColor color.RGBA) {
 	text.Draw(screen, drawText, fontFace, int(x), int(y), textColor)
 }

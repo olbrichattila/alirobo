@@ -9,7 +9,8 @@ const (
 	ScreenH = 480
 	// CdnUrl  = "https://alirobot.lon1.digitaloceanspaces.com/"
 	// CdnUrl = "https://gamechallange.oss-eu-west-1.aliyuncs.com/"
-	CdnUrl = "https://www.alirobo.fun/"
+	// CdnUrl = "https://www.alirobo.fun/"
+	CdnUrl = "https://fast.alirobo.fun/"
 	ApiUrl = "https://www.alirobo.fun/api/"
 )
 
