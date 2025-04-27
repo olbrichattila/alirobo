@@ -17,19 +17,29 @@ type InputBox interface {
 }
 
 type ib struct {
-	input      string
-	background *ebiten.Image
+	input            string
+	cursorFlashTimer int64
+	background       *ebiten.Image
+	cursorImage      *ebiten.Image
 }
 
 func New() InputBox {
 	boxImg := ebiten.NewImage(250, 30)
+	cursorImg := ebiten.NewImage(2, 22)
+	cursorImg.Fill(color.RGBA{255, 255, 255, 255})
 
 	return &ib{
-		background: boxImg,
+		background:  boxImg,
+		cursorImage: cursorImg,
 	}
 }
 
 func (i *ib) Update() {
+	i.cursorFlashTimer++
+	if i.cursorFlashTimer == 100 {
+		i.cursorFlashTimer = 0
+	}
+
 	i.background.Fill(color.RGBA{33, 33, 33, 255})
 	var runes []rune
 	runes = ebiten.AppendInputChars(runes)
@@ -47,11 +57,17 @@ func (i *ib) Update() {
 func (i *ib) Draw(screen *ebiten.Image, x, y float64) {
 	op := &ebiten.DrawImageOptions{}
 	op.GeoM.Translate(0, 0)
-	gametext.Draw(i.background, i.input, 5, 20)
+	textWidth := gametext.Draw(i.background, i.input, 5, 20)
 
 	op.GeoM.Reset()
 	op.GeoM.Translate(x, y)
 	screen.DrawImage(i.background, op)
+
+	if i.cursorFlashTimer < 50 {
+		op.GeoM.Reset()
+		op.GeoM.Translate(x+textWidth+7, y+4)
+		screen.DrawImage(i.cursorImage, op)
+	}
 }
 
 func (i *ib) Reset() {

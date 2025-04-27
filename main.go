@@ -93,6 +93,7 @@ type game struct {
 	openScreenButtons   button.Button
 	introButtons        button.Button
 	top10Buttons        button.Button
+	popupLineOk         button.Button
 	sprites             sprites
 	badges              []badge
 	gameStatus          gameStatus
@@ -169,6 +170,11 @@ func (g *game) preInitButtons() {
 
 	g.top10Buttons = button.New()
 	g.top10Buttons.New("Back", defaultconfig.ScreenW/2-50, defaultconfig.ScreenH-40, 50, 28, g.backFromTop10)
+
+	g.popupLineOk = button.New()
+	g.popupLineOk.New("Continue", defaultconfig.ScreenW/2-50, defaultconfig.ScreenH-40, 85, 28, func() {
+		g.popupLines = nil
+	})
 }
 
 func (g *game) init() {
@@ -190,10 +196,6 @@ func (g *game) init() {
 	g.sprites.robot.SetY(200)
 	g.timerWidget.Reset()
 
-	// For testing stages without playing the game
-	//g.gameStatus.gameMode = modeGame
-	// g.gameStatus.gameMode = modeWon
-	//g.gameStatus.gameMode = modeLost
 }
 
 func (g *game) Update() error {
@@ -201,6 +203,10 @@ func (g *game) Update() error {
 	case modeLoading:
 		g.updateLoading()
 	case modeOpenScreen:
+		// For testing stages without playing the game
+		// g.gameStatus.gameMode = modeGame
+		// g.gameStatus.gameMode = modeWon
+		// g.gameStatus.gameMode = modeLost
 		g.updateOpenScreen()
 	case modeIntro:
 		g.updateIntro()
@@ -315,6 +321,7 @@ func (g *game) handleShapeShift() {
 		g.gameStatus.robotShapeSifted = !g.gameStatus.robotShapeSifted
 		if g.gameStatus.robotShapeSifted {
 			g.sprites.robot.SetCollection(2)
+			g.playExplosionSound()
 		} else {
 			g.sprites.robot.SetCollection(0)
 		}

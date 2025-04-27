@@ -32,9 +32,9 @@ func (f *fac) initGameMap() {
 			level{
 				deepness: 350,
 				rooms: []room{
-					{bg: f.images.wallImage, floor: 150, ceil: 0, width: 230, leftWall: true},
-					{bg: f.images.wallImage, floor: 160, ceil: 5, width: 400, upperPassages: []passage{{pos: 40}}},
-					{bg: f.images.wallImage, floor: 160, ceil: 10, width: 630, rightWall: true, passages: []passage{{pos: 250}}},
+					{bg: f.images.wallImage, floor: 220, ceil: 5, width: 230, leftWall: true},
+					{bg: f.images.wallImage, floor: 230, ceil: 5, width: 400, upperPassages: []passage{{pos: 40}}},
+					{bg: f.images.wallImage, floor: 240, ceil: 5, width: 630, rightWall: true, passages: []passage{{pos: 250}}},
 					{width: 50},
 					{bg: f.images.officeImage, floor: 325, ceil: 0, width: 610, leftWall: true, passages: []passage{{pos: 50}}, render: f.renderOfficeEcsOffice, hintText: collectPasswordFromEmployeeHint},
 					{bg: f.images.wallImage, floor: 300, ceil: 0, width: 610, upperPassages: []passage{{pos: 30}}},

@@ -9,7 +9,7 @@ import (
 
 func (g *game) updateLost() {
 	g.popupLines = messages.LooserText()
-	if ebiten.IsKeyPressed(ebiten.KeyEnter) {
+	if ebiten.IsKeyPressed(ebiten.KeyEnter) || ebiten.IsKeyPressed(ebiten.KeyKPEnter) {
 		g.popupLines = nil
 		g.init()
 	}

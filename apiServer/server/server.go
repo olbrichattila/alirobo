@@ -34,6 +34,12 @@ func (s *server) Serve() error {
 	// fs := http.FileServer(http.Dir("."))
 	http.HandleFunc("/top", s.enableCORS(s.handlerTop10()))
 	http.HandleFunc("/add", s.enableCORS(s.handlerAddScore()))
+
+	http.HandleFunc("/memtop", s.enableCORS(s.handlerMemTop10()))
+	http.HandleFunc("/memadd", s.enableCORS(s.handlerMemAddScore()))
+
+	http.HandleFunc("/invtop", s.enableCORS(s.handlerInvTop10()))
+	http.HandleFunc("/invadd", s.enableCORS(s.handlerInvAddScore()))
 	// http.Handle("/", http.StripPrefix("/", fs))
 
 	return http.ListenAndServe(":3000", nil)
@@ -65,6 +71,96 @@ func (s *server) handlerAddScore() handleFunc {
 func (s *server) handlerTop10() handleFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		top10, err := s.store.Top10()
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusOK)
+			return
+		}
+
+		jsonBytes, err := json.Marshal(top10)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusOK)
+			return
+		}
+
+		_, err = w.Write(jsonBytes)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusOK)
+			return
+		}
+	}
+}
+
+func (s *server) handlerMemAddScore() handleFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		if r.Method != http.MethodPost {
+			http.Error(w, "post request expected", http.StatusBadRequest)
+			return
+		}
+		defer r.Body.Close()
+
+		var score userScore
+		err := json.NewDecoder(r.Body).Decode(&score)
+		if err != nil {
+			http.Error(w, "", http.StatusBadRequest)
+			return
+		}
+
+		err = s.store.AddMemScore(score.Name, score.Score)
+		if err != nil {
+			http.Error(w, "Could not save score"+err.Error(), http.StatusInternalServerError)
+			return
+		}
+	}
+}
+
+func (s *server) handlerMemTop10() handleFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		top10, err := s.store.TopMem10()
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusOK)
+			return
+		}
+
+		jsonBytes, err := json.Marshal(top10)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusOK)
+			return
+		}
+
+		_, err = w.Write(jsonBytes)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusOK)
+			return
+		}
+	}
+}
+
+func (s *server) handlerInvAddScore() handleFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		if r.Method != http.MethodPost {
+			http.Error(w, "post request expected", http.StatusBadRequest)
+			return
+		}
+		defer r.Body.Close()
+
+		var score userScore
+		err := json.NewDecoder(r.Body).Decode(&score)
+		if err != nil {
+			http.Error(w, "", http.StatusBadRequest)
+			return
+		}
+
+		err = s.store.AddInvScore(score.Name, score.Score)
+		if err != nil {
+			http.Error(w, "Could not save score"+err.Error(), http.StatusInternalServerError)
+			return
+		}
+	}
+}
+
+func (s *server) handlerInvTop10() handleFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		top10, err := s.store.TopInv10()
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusOK)
 			return

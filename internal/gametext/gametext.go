@@ -36,12 +36,20 @@ func loadFontFace() font.Face {
 	return fontFace
 }
 
-func Draw(screen *ebiten.Image, drawText string, x, y float64) {
+func Draw(screen *ebiten.Image, drawText string, x, y float64) float64 {
 	textColor := color.RGBA{255, 165, 0, 255}
-	DrawWithColor(screen, drawText, x, y, textColor)
-	text.Draw(screen, drawText, fontFace, int(x), int(y), textColor)
+
+	return DrawWithColor(screen, drawText, x, y, textColor)
 }
 
-func DrawWithColor(screen *ebiten.Image, drawText string, x, y float64, textColor color.RGBA) {
+func DrawWithColor(screen *ebiten.Image, drawText string, x, y float64, textColor color.RGBA) float64 {
 	text.Draw(screen, drawText, fontFace, int(x), int(y), textColor)
+
+	return calcTextWidth(drawText)
+}
+
+func calcTextWidth(text string) float64 {
+	bounds, _ := font.BoundString(fontFace, text)
+
+	return float64(bounds.Max.X-bounds.Min.X) / 64.0
 }

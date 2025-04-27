@@ -63,6 +63,8 @@ type fac struct {
 	inBossRoom          bool
 	result              FacilityResult
 	hoverOnBadgePickup  defaultconfig.AlibabaServiceType
+	spaceKeyIsDown      bool
+
 	// rom rendering properties
 	robotX             float64
 	robotY             float64
@@ -125,7 +127,17 @@ func (f *fac) init() {
 }
 
 func (f *fac) Update() {
-	if f.hoverOnBadgePickup > 0 && f.eventCallback != nil && ebiten.IsKeyPressed(ebiten.KeySpace) {
+	keyJustPressed := false
+	if ebiten.IsKeyPressed(ebiten.KeySpace) {
+		if !f.spaceKeyIsDown {
+			keyJustPressed = true
+		}
+		f.spaceKeyIsDown = true
+	} else {
+		f.spaceKeyIsDown = false
+	}
+
+	if f.hoverOnBadgePickup > 0 && f.eventCallback != nil && keyJustPressed {
 		f.eventCallback(f.hoverOnBadgePickup)
 	}
 

@@ -7,6 +7,10 @@ import (
 )
 
 func (g *game) gameEventHandler(event defaultconfig.AlibabaServiceType) {
+	if event != defaultconfig.BossRom {
+		g.playLaunchSound()
+	}
+
 	switch event {
 	case defaultconfig.BossRom:
 		g.renderBossRoom()

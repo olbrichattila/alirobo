@@ -1,41 +1,76 @@
 <!DOCTYPE html>
 <html>
-<head>
-    <meta charset="utf-8">
-    <title>AliRobo The guardian of Cloud</title>
+  <head>
+    <meta charset="utf-8" />
+    <title>AliRobo, Guardian of the Cloud</title>
     <style>
-      html, body {
-        margin: 0;
-        padding: 0;
-        overflow: hidden;
-        touch-action: none; 
-        background: black;
-        height: 100%;
+      body {
+        background-color: black;
+
+        color: white;
       }
-      canvas {
-        width: 100% !important;
-        height: 100% !important;
-        touch-action: none; 
+
+      img {
+        width: 35px;
+      }
+
+      .arrows {
+        width: 70px;
+      }
+
+      .space {
+        width: 140px;
+        height: 35px;
+      }
+
+      .wrapper {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+      }
+
+      iframe {
+        box-shadow: 5px 5px 10px #666666;
+        border: 1px solid #333333;
+      }
+
+      .navigationInfo {
+        display: flex;
+        justify-content: space-around;
+        width: 840px;
+        margin-top: 24px;
+        background-color: #222222;
+        padding: 26px;
+        box-shadow: 5px 5px 10px #666666;
+        border-radius: 6px;
+        text-align: center;
       }
     </style>
-</head>
-<body>
-    <canvas id="game" width="800" height="600"></canvas>
-    <script src="wasm_exec.js"></script>
-    <script>
-        window.addEventListener('click', () => {
-          if (typeof AudioContext !== 'undefined') {
-            new AudioContext().resume().then(() => {
-              console.log('AudioContext resumed on user gesture');
-            });
-          }
-        });
-      </script>
-    <script>
-        const go = new Go();
-        WebAssembly.instantiateStreaming(fetch("main.wasm"), go.importObject).then(result => {
-            go.run(result.instance);
-        });
-    </script>
-</body>
+  </head>
+  <body>
+    <div class="wrapper">
+      <h1>AliRobo, Guardian of the Cloud</h1>
+      <iframe src="game.html" width="840" height="480"></iframe>
+
+      <div class="navigationInfo">
+        <div>
+          <img class="arrows" src="arrows.png" alt="Key left" />
+          <div>Move</div>
+        </div>
+        <div>
+          <img class="space" src="space.png" alt="Key left" />
+          <div>Pick</div>
+        </div>
+        <div>
+          <img src="s.png" alt="Key left" />
+          <div>Shape Shift</div>
+        </div>
+        <div>
+          <img src="h.png" alt="Key left" />
+          <div>Hint</div>
+        </div>
+      </div>
+    </div>
+  </body>
 </html>

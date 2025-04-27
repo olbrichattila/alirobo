@@ -32,9 +32,8 @@ If for the specific room available and you're inside a room and unsure what to d
 (I've registered a domain for -> pointing to Alibaba ECS)
 Please note that the game is designed to work on a computer; mobile devices are not supported, and some old machines may not work due to a lack of Opengl support.
 
-> **Please give a few minutes to load!!!**  
-[https://www.alirobo.fun/](https://www.alirobo.fun/)
 
+[https://gamechallange.attilaolbrich.co.uk/alirobo/index.html](https://gamechallange.attilaolbrich.co.uk/alirobo/index.html)
 
 ---
 

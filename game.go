@@ -9,9 +9,13 @@ import (
 )
 
 func (g *game) updateGame() {
-	if len(g.popupLines) > 0 && ebiten.IsKeyPressed(ebiten.KeyEnter) {
-		g.popupLines = nil
+	if len(g.popupLines) > 0 {
+		g.popupLineOk.Update()
+		if ebiten.IsKeyPressed(ebiten.KeyEnter) || ebiten.IsKeyPressed(ebiten.KeyKPEnter) {
+			g.popupLines = nil
+		}
 	}
+
 	g.underGroundFacility.Update()
 	g.playBgMusic()
 	g.handleFullScreen()
@@ -25,6 +29,7 @@ func (g *game) updateGame() {
 func (g *game) drawGame(screen *ebiten.Image) {
 	if len(g.popupLines) > 0 {
 		popup.Show(screen, g.popupLines)
+		g.popupLineOk.Render(screen)
 		return
 	}
 
