@@ -39,16 +39,28 @@ Please note that the game is designed to work on a computer; mobile devices are 
 
 ## Screenshots
 
-![Opening page](https://raw.githubusercontent.com/olbrichattila/alirobo/main/static/alirobo2.png)
-![Opening page](https://raw.githubusercontent.com/olbrichattila/alirobo/main/screenshots/sc2.png)
-![Opening page](https://raw.githubusercontent.com/olbrichattila/alirobo/main/screenshots/sc3.png)
-![Opening page](https://raw.githubusercontent.com/olbrichattila/alirobo/main/screenshots/sc4.png)
-![Opening page](https://raw.githubusercontent.com/olbrichattila/alirobo/main/screenshots/sc5.png)
-![Opening page](https://raw.githubusercontent.com/olbrichattila/alirobo/main/screenshots/sc6.png)
-![Opening page](https://raw.githubusercontent.com/olbrichattila/alirobo/main/screenshots/sc17.png)
-![Opening page](https://raw.githubusercontent.com/olbrichattila/alirobo/main/screenshots/sc18.png)
-![Opening page](https://raw.githubusercontent.com/olbrichattila/alirobo/main/screenshots/sc19.png)
-![Opening page](https://raw.githubusercontent.com/olbrichattila/alirobo/main/screenshots/sc20.png)
+
+![Opening page](https://raw.githubusercontent.com/olbrichattila/alirobo/main/screenshots/s1.png)
+
+---
+
+![Opening page](https://raw.githubusercontent.com/olbrichattila/alirobo/main/screenshots/s2.png)
+
+---
+
+![Opening page](https://raw.githubusercontent.com/olbrichattila/alirobo/main/screenshots/s3.png)
+
+---
+
+![Opening page](https://raw.githubusercontent.com/olbrichattila/alirobo/main/screenshots/s4.png)
+
+---
+
+![Opening page](https://raw.githubusercontent.com/olbrichattila/alirobo/main/screenshots/s5.png)
+
+---
+
+![Opening page](https://raw.githubusercontent.com/olbrichattila/alirobo/main/screenshots/s6.png)
 
 ---
 
