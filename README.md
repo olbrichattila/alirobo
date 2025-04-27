@@ -39,7 +39,6 @@ Please note that the game is designed to work on a computer; mobile devices are 
 
 ## Screenshots
 
-
 ![Opening page](https://raw.githubusercontent.com/olbrichattila/alirobo/main/screenshots/s1.png)
 
 ---
